@@ -4,9 +4,9 @@ Async and concurrent extensions for Swift's `Sequence` type, built on structured
 
 ## Features
 
-- **Sequential async** — `asyncMap`, `asyncCompactMap`, `asyncFlatMap`, `asyncForEach`
-- **Concurrent** — `concurrentMap`, `concurrentCompactMap`, `concurrentFlatMap`, `concurrentForEach`
-- Order-preserving results for all `map`/`compactMap`/`flatMap` variants
+- **Sequential async** - `asyncMap`, `asyncCompactMap`, `asyncFlatMap`, `asyncForEach`, `asyncFilter`, `asyncReduce`
+- **Concurrent** - `concurrentMap`, `concurrentCompactMap`, `concurrentFlatMap`, `concurrentForEach`, `concurrentFilter`
+- Order-preserving results for all `map`/`compactMap`/`flatMap`/`filter` variants
 - Optional `maxNumberOfTasks` to limit parallelism
 - Automatic cancellation propagation via `TaskGroup`
 - Throwing variants with first-error cancellation via `ThrowingTaskGroup`
@@ -44,6 +44,16 @@ let validUsers = try await ids.asyncCompactMap { try await fetchUserIfExists(id:
 let allPosts = try await users.asyncFlatMap { try await fetchPosts(for: $0) }
 
 try await items.asyncForEach { try await save($0) }
+
+let activeUsers = try await users.asyncFilter { try await checkIsActive($0) }
+
+let total = try await invoices.asyncReduce(0) { sum, invoice in
+    try await sum + fetchAmount(for: invoice)
+}
+
+let usersByID = try await users.asyncReduce(into: [:]) { dict, user in
+    dict[user.id] = try await fetchProfile(for: user)
+}
 ```
 
 ### Concurrent operations
@@ -58,6 +68,8 @@ let validUsers = try await ids.concurrentCompactMap { try await fetchUserIfExist
 let allPosts = try await users.concurrentFlatMap { try await fetchPosts(for: $0) }
 
 try await items.concurrentForEach { try await upload($0) }
+
+let activeUsers = try await users.concurrentFilter { try await checkIsActive($0) }
 ```
 
 ### Limiting parallelism
@@ -78,4 +90,4 @@ let images = try await urls.concurrentMap(maxNumberOfTasks: 5) {
 
 ## License
 
-MIT — see [LICENSE](LICENSE) for details.
+MIT - see [LICENSE](LICENSE) for details.
