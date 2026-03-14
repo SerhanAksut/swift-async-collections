@@ -4,8 +4,21 @@ Async and concurrent extensions for Swift's `Sequence` type, built on structured
 
 ## Features
 
-- **Sequential async** - `asyncMap`, `asyncCompactMap`, `asyncFlatMap`, `asyncForEach`, `asyncFilter`, `asyncReduce`
-- **Concurrent** - `concurrentMap`, `concurrentCompactMap`, `concurrentFlatMap`, `concurrentForEach`, `concurrentFilter`
+- **Sequential async**
+  - `asyncMap`
+  - `asyncCompactMap`
+  - `asyncFlatMap`
+  - `asyncForEach`
+  - `asyncFilter`
+  - `asyncReduce`
+  - `asyncContains`
+- **Concurrent**
+  - `concurrentMap`
+  - `concurrentCompactMap`
+  - `concurrentFlatMap`
+  - `concurrentForEach`
+  - `concurrentFilter`
+  - `concurrentContains`
 - Order-preserving results for all `map`/`compactMap`/`flatMap`/`filter` variants
 - Optional `maxNumberOfTasks` to limit parallelism
 - Automatic cancellation propagation via `TaskGroup`
@@ -54,6 +67,8 @@ let total = try await invoices.asyncReduce(0) { sum, invoice in
 let usersByID = try await users.asyncReduce(into: [:]) { dict, user in
     dict[user.id] = try await fetchProfile(for: user)
 }
+
+let hasAdmin = try await users.asyncContains { try await checkIsAdmin($0) }
 ```
 
 ### Concurrent operations
@@ -70,6 +85,8 @@ let allPosts = try await users.concurrentFlatMap { try await fetchPosts(for: $0)
 try await items.concurrentForEach { try await upload($0) }
 
 let activeUsers = try await users.concurrentFilter { try await checkIsActive($0) }
+
+let hasAdmin = try await users.concurrentContains { try await checkIsAdmin($0) }
 ```
 
 ### Limiting parallelism
