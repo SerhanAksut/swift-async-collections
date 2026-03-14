@@ -13,14 +13,13 @@ let package = Package(
         .visionOS(.v1)
     ],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
-        .library(name: "AsyncCollections", targets: ["AsyncCollections"]),
+        .library(name: "AsyncCollections", targets: ["AsyncCollections"])
     ],
     targets: [
         .target(name: "AsyncCollections"),
         .testTarget(
             name: "AsyncCollectionsTests",
             dependencies: ["AsyncCollections"]
-        ),
+        )
     ]
 )
