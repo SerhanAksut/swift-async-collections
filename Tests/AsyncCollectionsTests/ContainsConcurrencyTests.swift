@@ -3,22 +3,26 @@ import Testing
 @testable import AsyncCollections
 
 // MARK: - asyncContains
-@Test func asyncContainsFindsMatchingElement() async {
+@Test("asyncContains finds matching element")
+func async_contains_finds_matching_element() async {
     let result = await [1, 2, 3, 4, 5].asyncContains { $0 == 3 }
     #expect(result == true)
 }
 
-@Test func asyncContainsReturnsFalseWhenNoMatch() async {
+@Test("asyncContains returns false when no match")
+func async_contains_returns_false_when_no_match() async {
     let result = await [1, 2, 3, 4, 5].asyncContains { $0 == 99 }
     #expect(result == false)
 }
 
-@Test func asyncContainsHandlesEmptySequence() async {
+@Test("asyncContains handles empty sequence")
+func async_contains_handles_empty_sequence() async {
     let result = await [Int]().asyncContains { $0 > 0 }
     #expect(result == false)
 }
 
-@Test func asyncContainsShortCircuits() async {
+@Test("asyncContains short-circuits")
+func async_contains_short_circuits() async {
     let counter = Mutex(0)
     let result = await [1, 2, 3, 4, 5].asyncContains { value in
         counter.withLock { $0 += 1 }
@@ -29,7 +33,8 @@ import Testing
     #expect(count == 2)
 }
 
-@Test func asyncContainsWithAsyncPredicate() async throws {
+@Test("asyncContains with async predicate")
+func async_contains_with_async_predicate() async throws {
     let result = try await [1, 2, 3, 4, 5].asyncContains { value in
         try await Task.sleep(for: .milliseconds(10))
         return value == 4
@@ -38,22 +43,26 @@ import Testing
 }
 
 // MARK: - concurrentContains
-@Test func concurrentContainsFindsMatchingElement() async {
+@Test("concurrentContains finds matching element")
+func concurrent_contains_finds_matching_element() async {
     let result = await [1, 2, 3, 4, 5].concurrentContains { $0 == 3 }
     #expect(result == true)
 }
 
-@Test func concurrentContainsReturnsFalseWhenNoMatch() async {
+@Test("concurrentContains returns false when no match")
+func concurrent_contains_returns_false_when_no_match() async {
     let result = await [1, 2, 3, 4, 5].concurrentContains { $0 == 99 }
     #expect(result == false)
 }
 
-@Test func concurrentContainsHandlesEmptySequence() async {
+@Test("concurrentContains handles empty sequence")
+func concurrent_contains_handles_empty_sequence() async {
     let result = await [Int]().concurrentContains { $0 > 0 }
     #expect(result == false)
 }
 
-@Test func concurrentContainsSingleElement() async {
+@Test("concurrentContains handles single element")
+func concurrent_contains_single_element() async {
     let found = await [42].concurrentContains { $0 == 42 }
     #expect(found == true)
 
@@ -61,25 +70,24 @@ import Testing
     #expect(notFound == false)
 }
 
-@Test func concurrentContainsRespectsMaxTasks() async {
+@Test("concurrentContains respects max tasks")
+func concurrent_contains_respects_max_tasks() async {
     let result = await [1, 2, 3, 4, 5].concurrentContains(maxNumberOfTasks: 2) {
         $0 == 4
     }
     #expect(result == true)
 }
 
-@Test func concurrentContainsRespectsMaxTasksNoMatch() async {
+@Test("concurrentContains respects max tasks with no match")
+func concurrent_contains_respects_max_tasks_no_match() async {
     let result = await [1, 2, 3, 4, 5].concurrentContains(maxNumberOfTasks: 2) {
         $0 == 99
     }
     #expect(result == false)
 }
 
-@Test func concurrentContainsCancelsEarlyInBackpressureLoop() async {
-    // With maxNumberOfTasks: 2, after enqueueing indices 0 and 1,
-    // the loop awaits group.next() before enqueueing index 2.
-    // Element 1 matches, so group.next() returns true inside the
-    // backpressure block, triggering cancelAll() and early return.
+@Test("concurrentContains cancels early in backpressure loop")
+func concurrent_contains_cancels_early_in_backpressure_loop() async {
     let evaluatedCount = Mutex(0)
     let result = await [1, 2, 3, 4, 5].concurrentContains(maxNumberOfTasks: 2) { value in
         evaluatedCount.withLock { $0 += 1 }
@@ -88,13 +96,12 @@ import Testing
     }
     #expect(result == true)
     let count = evaluatedCount.withLock { $0 }
-    // Only elements 1 and 2 should be enqueued (maxNumberOfTasks: 2).
-    // Element 2 matches, so the loop cancels before enqueueing 3, 4, 5.
     #expect(count <= 3)
 }
 
 // MARK: - concurrentContains (throwing)
-@Test func concurrentContainsThrowingFindsMatchingElement() async throws {
+@Test("concurrentContains throwing finds matching element")
+func concurrent_contains_throwing_finds_matching_element() async throws {
     let result = try await [1, 2, 3, 4, 5].concurrentContains { value -> Bool in
         try await Task.sleep(for: .milliseconds(1))
         return value == 3
@@ -102,7 +109,8 @@ import Testing
     #expect(result == true)
 }
 
-@Test func concurrentContainsThrowingReturnsFalseWhenNoMatch() async throws {
+@Test("concurrentContains throwing returns false when no match")
+func concurrent_contains_throwing_returns_false_when_no_match() async throws {
     let result = try await [1, 2, 3, 4, 5].concurrentContains { value -> Bool in
         try await Task.sleep(for: .milliseconds(1))
         return value == 99
@@ -110,7 +118,8 @@ import Testing
     #expect(result == false)
 }
 
-@Test func concurrentContainsThrowingRespectsMaxTasks() async throws {
+@Test("concurrentContains throwing respects max tasks")
+func concurrent_contains_throwing_respects_max_tasks() async throws {
     let result = try await [1, 2, 3, 4, 5].concurrentContains(maxNumberOfTasks: 2) { value -> Bool in
         try await Task.sleep(for: .milliseconds(1))
         return value == 4
@@ -118,7 +127,8 @@ import Testing
     #expect(result == true)
 }
 
-@Test func concurrentContainsThrowingCancelsEarlyInBackpressureLoop() async throws {
+@Test("concurrentContains throwing cancels early in backpressure loop")
+func concurrent_contains_throwing_cancels_early_in_backpressure_loop() async throws {
     let evaluatedCount = Mutex(0)
     let result = try await [1, 2, 3, 4, 5].concurrentContains(maxNumberOfTasks: 2) { value -> Bool in
         evaluatedCount.withLock { $0 += 1 }
@@ -130,7 +140,8 @@ import Testing
     #expect(count <= 3)
 }
 
-@Test func concurrentContainsThrowingCancelsOnError() async {
+@Test("concurrentContains throwing cancels on error")
+func concurrent_contains_throwing_cancels_on_error() async {
     struct TestError: Error {}
 
     do {

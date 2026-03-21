@@ -3,14 +3,16 @@ import Testing
 @testable import AsyncCollections
 
 // MARK: - asyncForEach
-@Test func asyncForEachProcessesAllElements() async {
+@Test("asyncForEach processes all elements")
+func async_for_each_processes_all_elements() async {
     var collected = [Int]()
     await [1, 2, 3].asyncForEach { collected.append($0) }
     #expect(collected == [1, 2, 3])
 }
 
 // MARK: - concurrentForEach
-@Test func concurrentForEachProcessesAllElements() async {
+@Test("concurrentForEach processes all elements")
+func concurrent_for_each_processes_all_elements() async {
     let collected = Mutex([Int]())
     await [1, 2, 3, 4, 5].concurrentForEach { value in
         collected.withLock { $0.append(value) }
@@ -19,7 +21,8 @@ import Testing
     #expect(result == [1, 2, 3, 4, 5])
 }
 
-@Test func concurrentForEachRespectsMaxTasks() async {
+@Test("concurrentForEach respects max tasks")
+func concurrent_for_each_respects_max_tasks() async {
     let collected = Mutex([Int]())
     await [1, 2, 3, 4, 5].concurrentForEach(maxNumberOfTasks: 2) { value in
         collected.withLock { $0.append(value) }
@@ -28,7 +31,8 @@ import Testing
     #expect(result == [1, 2, 3, 4, 5])
 }
 
-@Test func concurrentForEachHandlesEmptySequence() async {
+@Test("concurrentForEach handles empty sequence")
+func concurrent_for_each_handles_empty_sequence() async {
     let collected = Mutex([Int]())
     await [Int]().concurrentForEach { value in
         collected.withLock { $0.append(value) }
@@ -37,7 +41,8 @@ import Testing
     #expect(result.isEmpty)
 }
 
-@Test func concurrentForEachHandlesSingleElement() async {
+@Test("concurrentForEach handles single element")
+func concurrent_for_each_handles_single_element() async {
     let collected = Mutex([Int]())
     await [42].concurrentForEach { value in
         collected.withLock { $0.append(value) }
@@ -47,7 +52,8 @@ import Testing
 }
 
 // MARK: - concurrentForEach (throwing)
-@Test func concurrentForEachThrowingProcessesAllElements() async throws {
+@Test("concurrentForEach throwing processes all elements")
+func concurrent_for_each_throwing_processes_all_elements() async throws {
     let collected = Mutex([Int]())
     try await [1, 2, 3, 4, 5].concurrentForEach { value in
         try await Task.sleep(for: .milliseconds(1))
@@ -57,7 +63,8 @@ import Testing
     #expect(result == [1, 2, 3, 4, 5])
 }
 
-@Test func concurrentForEachThrowingRespectsMaxTasks() async throws {
+@Test("concurrentForEach throwing respects max tasks")
+func concurrent_for_each_throwing_respects_max_tasks() async throws {
     let collected = Mutex([Int]())
     try await [1, 2, 3, 4, 5].concurrentForEach(maxNumberOfTasks: 2) { value in
         try await Task.sleep(for: .milliseconds(1))
@@ -67,7 +74,8 @@ import Testing
     #expect(result == [1, 2, 3, 4, 5])
 }
 
-@Test func concurrentForEachThrowingPropagatesError() async {
+@Test("concurrentForEach throwing propagates error")
+func concurrent_for_each_throwing_propagates_error() async {
     struct TestError: Error {}
 
     do {
