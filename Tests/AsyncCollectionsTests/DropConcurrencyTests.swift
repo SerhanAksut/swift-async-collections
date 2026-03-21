@@ -3,27 +3,32 @@ import Testing
 @testable import AsyncCollections
 
 // MARK: - asyncDrop
-@Test func asyncDropRemovesMatchingPrefix() async {
+@Test("asyncDrop removes matching prefix")
+func async_drop_removes_matching_prefix() async {
     let result = await [1, 2, 3, 4, 5].asyncDrop { $0 < 3 }
     #expect(result == [3, 4, 5])
 }
 
-@Test func asyncDropRemovesAllWhenAllMatch() async {
+@Test("asyncDrop removes all when all match")
+func async_drop_removes_all_when_all_match() async {
     let result = await [1, 2, 3].asyncDrop { $0 < 10 }
     #expect(result == [])
 }
 
-@Test func asyncDropRemovesNoneWhenFirstFails() async {
+@Test("asyncDrop removes none when first fails")
+func async_drop_removes_none_when_first_fails() async {
     let result = await [5, 1, 2].asyncDrop { $0 < 3 }
     #expect(result == [5, 1, 2])
 }
 
-@Test func asyncDropHandlesEmptySequence() async {
+@Test("asyncDrop handles empty sequence")
+func async_drop_handles_empty_sequence() async {
     let result = await [Int]().asyncDrop { $0 > 0 }
     #expect(result == [])
 }
 
-@Test func asyncDropSingleElement() async {
+@Test("asyncDrop handles single element")
+func async_drop_single_element() async {
     let match = await [1].asyncDrop { $0 < 10 }
     #expect(match == [])
 
@@ -31,7 +36,8 @@ import Testing
     #expect(noMatch == [1])
 }
 
-@Test func asyncDropStopsCheckingAfterFirstFailure() async {
+@Test("asyncDrop stops checking after first failure")
+func async_drop_stops_checking_after_first_failure() async {
     let counter = Mutex(0)
     let result = await [1, 2, 5, 3, 4].asyncDrop { value in
         counter.withLock { $0 += 1 }
@@ -42,12 +48,14 @@ import Testing
     #expect(count == 3)
 }
 
-@Test func asyncDropIncludesLaterMatchingElements() async {
+@Test("asyncDrop includes later matching elements")
+func async_drop_includes_later_matching_elements() async {
     let result = await [2, 4, 1, 6, 8].asyncDrop { $0.isMultiple(of: 2) }
     #expect(result == [1, 6, 8])
 }
 
-@Test func asyncDropWithAsyncPredicate() async throws {
+@Test("asyncDrop with async predicate")
+func async_drop_with_async_predicate() async throws {
     let result = try await [1, 2, 3, 4, 5].asyncDrop { value in
         try await Task.sleep(for: .milliseconds(10))
         return value < 3
