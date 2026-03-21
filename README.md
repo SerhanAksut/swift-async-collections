@@ -12,6 +12,10 @@ Async and concurrent extensions for Swift's `Sequence` type, built on structured
   - `asyncFilter`
   - `asyncReduce`
   - `asyncContains`
+  - `asyncAllSatisfy`
+  - `asyncFirst(where:)`
+  - `asyncPrefix(while:)`
+  - `asyncDrop(while:)`
 - **Concurrent**
   - `concurrentMap`
   - `concurrentCompactMap`
@@ -19,7 +23,9 @@ Async and concurrent extensions for Swift's `Sequence` type, built on structured
   - `concurrentForEach`
   - `concurrentFilter`
   - `concurrentContains`
-- Order-preserving results for all `map`/`compactMap`/`flatMap`/`filter` variants
+  - `concurrentAllSatisfy`
+  - `concurrentFirst(where:)`
+- Order-preserving results for all `map`/`compactMap`/`flatMap`/`filter`/`first` variants
 - Optional `maxNumberOfTasks` to limit parallelism
 - Automatic cancellation propagation via `TaskGroup`
 - Throwing variants with first-error cancellation via `ThrowingTaskGroup`
@@ -33,7 +39,7 @@ Add to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/serhanaksut/swift-async-collections.git", from: "1.2.0")
+    .package(url: "https://github.com/serhanaksut/swift-async-collections.git", from: "1.3.0")
 ]
 ```
 
@@ -69,6 +75,14 @@ let usersByID = try await users.asyncReduce(into: [:]) { dict, user in
 }
 
 let hasAdmin = try await users.asyncContains { try await checkIsAdmin($0) }
+
+let allVerified = try await users.asyncAllSatisfy { try await checkIsVerified($0) }
+
+let firstAdmin = try await users.asyncFirst { try await checkIsAdmin($0) }
+
+let leadingActive = try await users.asyncPrefix { try await checkIsActive($0) }
+
+let afterInactive = try await users.asyncDrop { try await checkIsInactive($0) }
 ```
 
 ### Concurrent operations
@@ -87,6 +101,10 @@ try await items.concurrentForEach { try await upload($0) }
 let activeUsers = try await users.concurrentFilter { try await checkIsActive($0) }
 
 let hasAdmin = try await users.concurrentContains { try await checkIsAdmin($0) }
+
+let allVerified = try await users.concurrentAllSatisfy { try await checkIsVerified($0) }
+
+let firstAdmin = try await users.concurrentFirst { try await checkIsAdmin($0) }
 ```
 
 ### Limiting parallelism
